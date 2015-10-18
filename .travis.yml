@@ -4,6 +4,17 @@ elixir:
 otp_release:
   - 18.0
 
+before_script:
+  - mix do ecto.create, ecto.migrate
+  - npm install -g brunch
+  - npm install
+  - brunch build --production
+  - mix phoenix.digest
+  - git config --global user.email "ktornwall+travisci@gmail.com"
+  - git config --global user.name "Katherine Tornwall"
+  - git add priv && git commit -m "Heroku assets"
+  - MIX_ENV=test mix do deps.get, deps.compile, ecto.create, ecto.migrate
+
 deploy:
   provider: heroku
   api_key:
@@ -12,15 +23,6 @@ deploy:
   strategy: git-ssh
   on:
     repo: ktornwall/equanimous-chainsaw
-  before_script:
-    - mix do ecto.create, ecto.migrate
-    - npm install -g brunch
-    - npm install
-    - brunch build --production
-    - mix phoenix.digest
-    - git config --global user.email "ktornwall+travisci@gmail.com"
-    - git config --global user.name "Katherine Tornwall"
-    - git add priv && git commit -m "Heroku assets"
-    - MIX_ENV=test mix do deps.get, deps.compile, ecto.create, ecto.migrate
-  after_deploy:
-    - heroku run "mix ecto.migrate" -a rocky-spire-8676
+
+after_deploy:
+  - heroku run "mix ecto.migrate" -a rocky-spire-8676
