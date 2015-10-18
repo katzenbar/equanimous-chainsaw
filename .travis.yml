@@ -9,5 +9,18 @@ deploy:
   api_key:
     secure: JjiIS0X6QMLW16Tk6IlgOiC+qW1JJbg1lMN/jSHBkiKoAqLOc7EfonHZHYzbvb+n2wZL9fadH81lUxqejjiJsg6OPVRcTyVGGTyqX5kFkuUSg95UFBt6nxvCkJARZpWKcVerCTy4i1kifL1hG0VA7Xa9w7tS0gKbtyfvK3qLqCDkOW1kNBHF2kucUY+IO1WHnXRmMunNTGJ/L2+XQRePaUgsvARYgStk4F/GMEVVtJuYDYt67LJl/4XOXbNp7od4o52eY0B/FZ/RmYHQr4mbHAK/7OCPId1p+H6i563iALK5G96l6FQfE+wP4z2OrcC09Qvl1FpxIoNVV5wTNfFc85BDPxuON56HBdAwsGw2Ow5JijumnZ4V3ky6/JIPjdvqcfLHmM0wNurUWILdznkmIb1SbeejO+Xqcn/Q/ffGUIQTpURaPB/GiXqKyf5mZGgRxutCZDfUp7n53e0l+tdHOLATT9rIZHJsXY4WsYQd40B4AL242qEn4a7xKrNczTi1oKnkompeqyQ6YlYRWf6xcB+jzr+jgz2FJQvxHALL1KxBfzINwVv3GxtvgibXvsN0EE2KmJa/hkhOTdR3ep+r7cTAw85UR43+jyKLE98zGc8ELFLoE5QqEKhJ+zDxIlutXwji0hGVf1cc90RoNCca3GwtDZjgS4pIw4nBynFoT2g=
   app: rocky-spire-8676
+  strategy: git-ssh
   on:
     repo: ktornwall/equanimous-chainsaw
+  before_script:
+    - mix do ecto.create, ecto.migrate
+    - npm install -g brunch
+    - npm install
+    - brunch build --production
+    - mix phoenix.digest
+    - git config --global user.email "ktornwall+travisci@gmail.com"
+    - git config --global user.name "Katherine Tornwall"
+    - git add priv && git commit -m "Heroku assets"
+    - MIX_ENV=test mix do deps.get, deps.compile, ecto.create, ecto.migrate
+  after_deploy:
+    - heroku run "mix ecto.migrate" -a rocky-spire-8676
