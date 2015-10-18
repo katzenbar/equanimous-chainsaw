@@ -12,7 +12,8 @@ before_script:
   - mix phoenix.digest
   - git config --global user.email "ktornwall+travisci@gmail.com"
   - git config --global user.name "Katherine Tornwall"
-  - git add priv && git commit -m "Heroku assets"
+  - git add priv
+  - git commit -m "Heroku assets"
   - MIX_ENV=test mix do deps.get, deps.compile, ecto.create, ecto.migrate
 
 deploy:
